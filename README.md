@@ -1,16 +1,34 @@
-# ViTaL
+# ViTaL: Inference-time Policy Steering via Vision and Touch
 
-**Inference-time Policy Steering via Vision and Touch**
+<p class="authors">
+  Yilin Wu, Zilin Si, Zeynep Temel, Oliver Kroemer, and Andrea Bajcsy.
+</p>
 
-[Paper](https://arxiv.org/abs/2606.14981) ·
-[Project website](https://yilin-wu98.github.io/vital_website/) ·
-[Datasets](https://huggingface.co/datasets/yilin-wu/ViTaL-datasets)
+[![arXiv](https://img.shields.io/badge/arXiv-2606.14981-df2a2a.svg?style=for-the-badge&logo=arxiv)](https://arxiv.org/abs/2606.14981)
+[![Website](https://img.shields.io/badge/Website-ViTaL-black?style=for-the-badge)](https://yilin-wu98.github.io/vital_website/)
+[![Dataset](https://img.shields.io/badge/Dataset-%F0%9F%A4%97-yellow?style=for-the-badge)](https://huggingface.co/datasets/yilin-wu/ViTaL-datasets)
+[![License](https://img.shields.io/badge/License-MIT%20%2F%20Apache--2.0-green?style=for-the-badge)](LICENSE.md)
 
-Yilin Wu, Zilin Si, Zeynep Temel, Oliver Kroemer, and Andrea Bajcsy.
+---
 
 ViTaL steers a diffusion policy at inference time using visual and tactile
 rewards. This repository contains the active tactile world model, AnyTouch 2
 reward scoring, and the liquid-transfer steering experiments.
+
+<p align="center">
+  <a href="https://yilin-wu98.github.io/vital_website/">
+    <img src="assets/readme/teaser.gif" alt="ViTaL demonstrations of wiping, insertion, and pipette transfer" width="100%">
+  </a>
+</p>
+
+<p align="center">
+  Wiping, insertion, and pipette transfer. Click the teaser for the full project video.
+  <br>
+  <a href="latent-tactile/README.md#train-the-active-world-model">World-model training</a>
+  · <a href="latent-tactile/README.md#evaluate-the-selected-checkpoint">World-model evaluation</a>
+  · <a href="anytouch-reward/README.md#score-world-model-predictions">Tactile rewards</a>
+  · <a href="liquid-tactile-control/README.md#run-robot-evaluation">Robot steering</a>
+</p>
 
 | Package | Contents | Instructions |
 | --- | --- | --- |
