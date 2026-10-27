@@ -16,13 +16,13 @@ rewards. This repository contains the active tactile world model, AnyTouch 2
 reward scoring, and the liquid-transfer steering experiments.
 
 <p align="center">
-  <a href="https://yilin-wu98.github.io/vital_website/">
-    <img src="assets/readme/teaser.gif" alt="ViTaL demonstrations of wiping, insertion, and pipette transfer" width="100%">
+  <a href="https://yilin-wu98.github.io/vital_website/static/videos/teaser_web.mp4">
+    <img src="assets/readme/teaser.gif" alt="ViTaL method overview: visual mode selection and tactile refinement" width="100%">
   </a>
 </p>
 
 <p align="center">
-  Wiping, insertion, and pipette transfer. Click the teaser for the full project video.
+  Method overview: visual mode selection and tactile refinement. Click to watch the full overview video.
   <br>
   <a href="latent-tactile/README.md#train-the-active-world-model">World-model training</a>
   · <a href="latent-tactile/README.md#evaluate-the-selected-checkpoint">World-model evaluation</a>
