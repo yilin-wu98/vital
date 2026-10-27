@@ -41,6 +41,9 @@
   "export_verified": true,
   "dataset_repo": "yilin-wu/ViTaL-datasets",
   "license": "cc-by-4.0",
-  "upload_status": "in_progress",
-  "upload_verified": false
+  "upload_status": "complete",
+  "upload_verified": true,
+  "dataset_commit": "b51b44ff0807772de0f161d2bf79ee35987660de",
+  "uploaded_files": 994,
+  "release_id": "699f70ab4b0a4034aa626e63c26a520aad473b9849eb83b8798ae09a9c19e7a1"
 }

@@ -68,8 +68,8 @@ contains 980 episodes, 302,631 action frames, and 716.51 GB of losslessly
 compressed HDF5 episode files. See [DATASETS.md](DATASETS.md) for the schema,
 splits, normalization, and integrity checks.
 
-**The initial dataset upload is in progress.** The release inventory describes
-the complete intended dataset.
+**All 980 episodes are uploaded and publicly available.** The published file
+names and SHA-256 checksums have been verified against the release manifests.
 
 Download only the pipette task for the commands below:
 

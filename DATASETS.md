@@ -4,8 +4,8 @@
 [Paper](https://arxiv.org/abs/2606.14981) ·
 [Project website](https://yilin-wu98.github.io/vital_website/)
 
-**The initial upload is in progress.** All local exports have passed integrity
-checks; the table lists the complete intended release.
+**All 980 episodes are uploaded and publicly available.** The published file
+names and SHA-256 checksums have been verified against the release manifests.
 
 | Task | Episodes | Train / test | Action frames | Compressed GB | Recorded WM run |
 | --- | ---: | ---: | ---: | ---: | --- |
