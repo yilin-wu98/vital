@@ -1,0 +1,4 @@
+include LICENSE README.md SOURCE_MANIFEST.json
+recursive-include docs *.json
+recursive-include scripts *.sh
+recursive-include tests *.py

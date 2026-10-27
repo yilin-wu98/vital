@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "anytouch-reward"
+version = "0.1.0"
+description = "AnyTouch tactile-language reward prediction for robot world models"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "torch>=2.4,<2.8", "torchvision>=0.19,<0.23", "numpy>=1.26,<2",
+  "transformers==4.42.3", "einops>=0.8,<0.9", "pillow",
+  "opencv-python>=4.10,<4.12", "matplotlib>=3.8",
+]
+
+[project.scripts]
+anytouch-score-video = "anytouch_reward.video:main"
+
+[tool.setuptools]
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+
+[tool.setuptools.packages.find]
+include = ["anytouch_reward*"]
+
+[tool.setuptools.package-data]
+anytouch_reward = ["assets/clip/*.json", "assets/clip/*.txt"]

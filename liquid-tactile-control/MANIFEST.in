@@ -1,0 +1,5 @@
+include LICENSE README.md SOURCE_MANIFEST.json THIRD_PARTY_NOTICES.md
+recursive-include configs *.json
+recursive-include analysis *.py
+recursive-include tests *.py
+recursive-include patches *.patch *.md

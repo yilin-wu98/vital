@@ -1,0 +1,566 @@
+# Publication cleanup (2026-10-27): adapted from latent-tactile/dino_wm/hdf5_to_dataset_tactile.py.
+"""
+Convert HDF5 trajectories with 3 cameras to a consolidated dataset:
+- camera_0, camera_1: RS cameras → DINOv3 patch embeddings (14×14 grid, 196 patches)
+- camera_2: Tactile camera → AnyTouch embeddings from last 4 tactile frames
+
+Requires AnyTouch2 repo for TactileVideoMAE. Set ANYTOUCH_PATH or pass --anytouch_path.
+"""
+
+import argparse
+import copy
+import os
+import sys
+import shutil
+from pathlib import Path
+
+import h5py
+import numpy as np
+import torch
+import torch.nn.functional as F
+from PIL import Image
+from scipy.spatial.transform import Rotation as R
+from tqdm import tqdm
+from torchvision import transforms
+import torchvision.transforms.functional as TF
+import json
+# Tactile preprocessing constants (from AnyTouch infer_touch_text_similarity.py)
+OFFSET = 130.0 / 255.0
+CLIP_MEAN = [0.48145466, 0.4578275, 0.40821073]
+CLIP_STD = [0.26862954, 0.26130258, 0.27577711]
+
+SENSOR_NAME_TO_ID = {
+    "gelsight": 0,
+    "digit": 1,
+    "gelslim": 2,
+    "gelsight_mini": 3,
+    "duragel": 4,
+    "dm": 5,
+    "universal": -1,
+}
+
+
+def crop_top_middle(image):
+    top = 30
+    left = 46
+    height = 180
+    width = 180
+    return TF.crop(image, top, left, height, width)
+
+
+# Front cam transforms (camera_1)
+crop_transform = transforms.Compose([
+    transforms.ToPILImage(),
+    # transforms.Lambda(lambda img: crop_top_middle(img)),
+    transforms.Resize((224, 224)),
+    transforms.ToTensor()
+])
+DINO_crop = transforms.Compose([
+    transforms.GaussianBlur(kernel_size=(5, 5), sigma=(0.1, 0.1)),
+    # transforms.Lambda(lambda img: crop_top_middle(img)),
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225])
+])
+
+# Wrist cam transforms (camera_0)
+resize_transform = transforms.Compose([
+    transforms.ToPILImage(),
+    transforms.Resize((224, 224)),
+    transforms.ToTensor()
+])
+DINO_transform = transforms.Compose([
+    transforms.Resize(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225])
+])
+
+
+def resize_images_to_224(images, key):
+    """Resize a batch of images to 224x224."""
+    resized = []
+    for i in range(len(images)):
+        img = images[i]
+        if key == "camera_0":  # wrist camera
+            img_tensor = resize_transform(img.astype(np.uint8))
+        elif key == "camera_1":  # front camera
+            img_tensor = crop_transform(img.astype(np.uint8))
+        else:  # camera_2 tactile - simple resize
+            img_tensor = transforms.Compose([
+                transforms.ToPILImage(),
+                transforms.Resize((224, 224)),
+                transforms.ToTensor()
+            ])(img.astype(np.uint8))
+        resized.append(img_tensor.numpy().transpose(1, 2, 0))
+    return np.stack(resized)
+
+
+def eef_pose_to_state(T, gripper):
+    x, y, z = T[:3, 3]
+    rotation_matrix = T[:3, :3]
+    quat = R.from_matrix(rotation_matrix).as_quat()
+    return np.concatenate(([x, y, z], quat, [gripper]))
+
+
+# ── Tactile model loading (from AnyTouch) ───────────────────────────────────
+
+def _load_tactile_model( checkpoint_path, sensor, num_frames=4, stride=2, device="cuda"):
+    """Compatibility adapter to the standalone AnyTouch reward package."""
+    from anytouch_reward.loading import load_tactile_encoder
+    return load_tactile_encoder(
+        checkpoint_path, sensor, num_frames=num_frames, stride=stride, device=device,
+    )
+
+
+# ── Tactile preprocessing (from AnyTouch infer_touch_text_similarity) ─────────
+
+def preprocess_tactile_window(
+    window_frames: list[np.ndarray],
+    bg_image: np.ndarray,
+) -> torch.Tensor:
+    """
+    Preprocess a window of 4 tactile frames for AnyTouch.
+    window_frames: list of 4 RGB arrays (H, W, 3)
+    bg_image: background (no-contact) image
+    Returns: (4, 3, 224, 224) tensor
+    """
+    to_tensor = transforms.ToTensor()
+    transform = transforms.Compose([
+        transforms.Resize(size=(224, 224), antialias=True),
+        transforms.Normalize(CLIP_MEAN, CLIP_STD),
+    ])
+
+    bg_tensor = to_tensor(Image.fromarray(bg_image).convert("RGB"))
+    tensors = [to_tensor(Image.fromarray(f).convert("RGB")) for f in window_frames]
+    stacked = torch.stack(tensors, dim=0)
+    imgs = stacked - bg_tensor.unsqueeze(0) + OFFSET
+    imgs = torch.clamp(imgs, 0.0, 1.0)
+    imgs = transform(imgs)
+    return imgs  # (4, 3, 224, 224)
+
+
+def build_tactile_windows_per_timestep(
+    tactile_frames: np.ndarray,
+    num_frames: int = 4,
+) -> list[torch.Tensor]:
+    """
+    For each timestep t, build a window of the last `num_frames` tactile frames.
+    Pads with first frame when t < num_frames-1.
+    tactile_frames: (T, H, W, C) uint8
+    Returns: list of (num_frames, 3, 224, 224) tensors, one per timestep
+    """
+    T = tactile_frames.shape[0]
+    bg_image = tactile_frames[0]
+
+    windows = []
+    for t in range(T):
+        # Last num_frames: [t-3, t-2, t-1, t], pad with frame 0 when needed
+        indices = [max(0, t - num_frames + 1 + i) for i in range(num_frames)]
+        window_frames = [tactile_frames[i] for i in indices]
+        window_tensor = preprocess_tactile_window(window_frames, bg_image)
+        windows.append(window_tensor)
+
+    return windows
+
+
+@torch.no_grad()
+def extract_tactile_embeddings_batch(
+    model,
+    windows: list[torch.Tensor],
+    sensor_id: int,
+    device: torch.device,
+    aggregate: str = "cls",
+    batch_size: int = 32,
+) -> np.ndarray:
+    """Returns (N, 512) array of L2-normalized tactile embeddings."""
+    all_cls_embeds = []
+    all_patch_embeds = []
+    for i in range(0, len(windows), batch_size):
+        batch = torch.stack(windows[i : i + batch_size]).to(device)  # (B, T, C, H, W)
+        sensors = torch.full((batch.shape[0],), sensor_id, dtype=torch.long, device=device)
+
+        outputs = model(batch, sensor_type=sensors, probe=False, get_cls=False)
+
+        # if aggregate == "cls":
+        cls_emb = outputs[:, 0, :]
+        # else:
+        patch_emb = outputs[:, 6:, :]
+
+        cls_emb = F.normalize(cls_emb, dim=-1)
+        patch_emb = F.normalize(patch_emb, dim=-1)
+        all_cls_embeds.append(cls_emb.cpu().float().numpy())
+        all_patch_embeds.append(patch_emb.cpu().float().numpy())
+
+    return np.concatenate(all_cls_embeds, axis=0), np.concatenate(all_patch_embeds, axis=0)
+
+
+# ── Main preprocessing ──────────────────────────────────────────────────────
+
+def preprocess(
+    demo_paths: list[str],
+    checkpoint_path: str,
+    sensor: str = "digit",
+    num_tactile_frames: int = 4,
+    device: str = "cuda:0",
+    output_json_file: str = None,
+    dinov3_hub_dir: str = None,
+    dinov3_weights: str = None,
+):
+    if not dinov3_hub_dir or not dinov3_weights:
+        raise ValueError("DINOv3 repository and weight paths must be supplied")
+    dino = torch.hub.load(
+        dinov3_hub_dir, "dinov3_vitb16", source="local", weights=dinov3_weights,
+    ).to(device)
+    tactile_model, sensor_id = _load_tactile_model(
+    checkpoint_path, sensor,
+        num_frames=num_tactile_frames, device=device
+    )
+
+    hdf5_files = []
+    for demo_path in demo_paths:
+        hdf5_files.extend(
+            os.path.join(demo_path, f) for f in os.listdir(demo_path) if f.endswith('.hdf5')
+        )
+
+    all_acs = []
+    transitions = 0
+    all_states = []
+    for i, hdf5_file in tqdm(enumerate(hdf5_files), desc="Loading expert data",
+                              total=len(hdf5_files), ncols=0, leave=False):
+        with h5py.File(hdf5_file, "r+") as f:
+            if 'data' not in f:
+                data_group = f
+            else:
+                data_group = f["data"]
+            if "camera_0" not in data_group or "camera_1" not in data_group:
+                print(f"Skipping {hdf5_file} due to missing camera_0/camera_1.")
+                continue
+            if "camera_2" not in data_group:
+                print(f"Skipping {hdf5_file} due to missing camera_2 (tactile).")
+                continue
+
+            # Truncation: max 400 steps; label=='4' → max 80 steps
+            label = str(data_group.attrs.get("label", ""))
+            # max_len = 80 if label == "4" else 400
+            traj_len = data_group["actions"].shape[0]
+            # T = min(traj_len, max_len)
+            T = traj_len
+
+            actions = data_group["actions"][:T]
+            cam_0 = data_group["camera_0"][:T]
+            cam_1 = data_group["camera_1"][:T]
+            cam_tactile = data_group["camera_2"][:T]
+
+            ee_states = data_group["ee_states"][:T]
+            gripper_states = data_group["gripper_states"][:T]
+
+            # Check for partially saved embeddings (storage full during save) and delete so we recompute
+            expected_len = actions.shape[0]
+            embd_keys = [
+                "cam_0_cls_embd", "cam_0_patch_embd", "cam_1_cls_embd", "cam_1_patch_embd",
+                "cam_tactile_cls_embd", "cam_tactile_patch_embd",
+            ]
+            for key in embd_keys:
+                if key in data_group and data_group[key].shape[0] != expected_len:
+                    print(f"Rewriting {key} in {hdf5_file}: embd len {data_group[key].shape[0]} != actions {expected_len}")
+                    del data_group[key]
+
+            cam_0_patch_embds = []
+            cam_0_cls_embds = []
+            cam_1_patch_embds = []
+            cam_1_cls_embds = []
+            cam_tactile_cls_embds = []
+            cam_tactile_patch_embds = []
+            states = []
+
+            # DINO embeddings for camera_0 and camera_1
+            for t in range(actions.shape[0]):
+                if "cam_0_patch_embd" not in data_group:
+                    rs_img = cam_0[t]
+                    img_PIL = Image.fromarray(np.uint8(rs_img)).convert('RGB')
+                    img_tensor = DINO_transform(img_PIL).to(device)
+                    with torch.no_grad():
+                        cls_emb = dino.forward_features(img_tensor.unsqueeze(0))['x_norm_clstoken'].squeeze().cpu().numpy()
+                        patch_emb = dino.forward_features(img_tensor.unsqueeze(0))['x_norm_patchtokens'].squeeze().cpu().numpy()
+                    # print('cls_emb', cls_emb.shape)
+                    # print('patch_emb', patch_emb.shape)
+                    # breakpoint()
+                    cam_0_cls_embds.append(cls_emb)
+                    cam_0_patch_embds.append(patch_emb)
+
+                if "cam_1_embd" not in data_group:
+                    zed_img = cam_1[t]
+                    img_PIL = Image.fromarray(np.uint8(zed_img)).convert('RGB')
+                    img_tensor = DINO_crop(img_PIL).to(device)
+                    with torch.no_grad():
+                        cls_emb = dino.forward_features(img_tensor.unsqueeze(0))['x_norm_clstoken'].squeeze().cpu().numpy()
+                        patch_emb = dino.forward_features(img_tensor.unsqueeze(0))['x_norm_patchtokens'].squeeze().cpu().numpy()
+                    cam_1_cls_embds.append(cls_emb)
+                    cam_1_patch_embds.append(patch_emb)
+
+                ee_state = eef_pose_to_state(ee_states[t].reshape(4, 4).T, gripper_states[t])
+                states.append(ee_state)
+
+            # Tactile embeddings: last 4 frames per timestep
+            if "cam_tactile_embd" not in data_group:
+                tactile_windows = build_tactile_windows_per_timestep(
+                    cam_tactile, num_frames=num_tactile_frames
+                )
+                cam_tactile_cls_embds, cam_tactile_patch_embds = extract_tactile_embeddings_batch(
+                    tactile_model, tactile_windows, sensor_id, torch.device(device)
+                )
+
+            # Save to HDF5
+            if "cam_0_cls_embd" not in data_group:
+                data_group.create_dataset("cam_0_cls_embd", data=np.stack(cam_0_cls_embds))
+            if "cam_0_patch_embd" not in data_group:
+                data_group.create_dataset("cam_0_patch_embd", data=np.stack(cam_0_patch_embds))
+            if "cam_1_cls_embd" not in data_group:
+                data_group.create_dataset("cam_1_cls_embd", data=np.stack(cam_1_cls_embds))
+            if "cam_1_patch_embd" not in data_group:
+                data_group.create_dataset("cam_1_patch_embd", data=np.stack(cam_1_patch_embds))
+            if "cam_tactile_cls_embd" not in data_group:
+                data_group.create_dataset("cam_tactile_cls_embd", data=np.stack(cam_tactile_cls_embds))
+            if "cam_tactile_patch_embd" not in data_group:
+                data_group.create_dataset("cam_tactile_patch_embd", data=np.stack(cam_tactile_patch_embds))
+            if "states" not in data_group:
+                data_group.create_dataset("states", data=np.stack(states))
+
+            all_acs.extend(actions)
+            all_states.extend(states)
+            transitions += len(actions)
+
+    all_acs = np.array(all_acs)
+    all_states = np.array(all_states)
+    assert all_states.shape[0] == all_acs.shape[0], "Number of states and actions must match"
+    print('max', np.max(all_acs, axis=0))
+    print('min', np.min(all_acs, axis=0))
+    print('total transitions:', transitions)
+    max_acs, min_acs, total_transitions, num_trajs = np.max(all_acs, axis=0), np.min(all_acs, axis=0), transitions, i+1
+    mean_acs = np.mean(all_acs, axis=0)
+    std_acs = np.std(all_acs, axis=0)
+    info = {'max_acs': max_acs.tolist(), 'min_acs': min_acs.tolist(), 'mean_acs': mean_acs.tolist(), 'std_acs':std_acs.tolist(), 'num_transitions': int(total_transitions), 'num_trajectories': int(num_trajs)}
+    ## also computing the states stats
+    max_states, min_states, total_transitions, num_trajs = np.max(all_states, axis=0), np.min(all_states, axis=0), transitions, i+1
+    mean_states = np.mean(all_states, axis=0)
+    std_states = np.std(all_states, axis=0)
+    info['max_states'] = max_states.tolist()
+    info['min_states'] = min_states.tolist()
+    info['mean_states'] = mean_states.tolist()
+    info['std_states'] = std_states.tolist()
+    with open(output_json_file, "x") as f:
+        json.dump(info, f)  # indent=4 makes it pretty-printed
+
+
+
+def compute_norm_stats_only(
+    consolidated_hdf5_path: str,
+    output_json_file: str,
+):
+    """Compute action/state norm stats from an already consolidated HDF5 file."""
+    with h5py.File(consolidated_hdf5_path, "r") as hf:
+        traj_ids = [k for k in hf.keys() if k.startswith("trajectory_")]
+    traj_ids.sort()
+
+    all_acs = []
+    all_states = []
+    transitions = 0
+    num_trajs = 0
+    with h5py.File(consolidated_hdf5_path, "r") as hf:
+        for traj_id in tqdm(traj_ids, desc="Computing norm stats", ncols=0):
+            traj = hf[traj_id]
+            if "actions" not in traj:
+                print(f"Skipping {traj_id}: no actions")
+                continue
+            if "ee_states" not in traj or "gripper_states" not in traj:
+                print(f"Skipping {traj_id}: no ee_states or gripper_states")
+                continue
+
+            actions = traj["actions"][...]
+            ee_states = traj["ee_states"][...]
+            gripper_states = traj["gripper_states"][...]
+            T = len(actions)
+
+            for t in range(T):
+                ee_state = eef_pose_to_state(ee_states[t].reshape(4, 4).T, gripper_states[t])
+                all_states.append(ee_state)
+            all_acs.extend(actions)
+            transitions += T
+            num_trajs += 1
+
+    if not all_acs or not all_states:
+        raise ValueError("No valid trajectories found; all files were skipped or empty")
+
+    all_acs = np.array(all_acs)
+    all_states = np.array(all_states)
+    assert all_states.shape[0] == all_acs.shape[0], "Number of states and actions must match"
+
+    print("max", np.max(all_acs, axis=0))
+    print("min", np.min(all_acs, axis=0))
+    print("total transitions:", transitions)
+
+    max_acs = np.max(all_acs, axis=0)
+    min_acs = np.min(all_acs, axis=0)
+    mean_acs = np.mean(all_acs, axis=0)
+    std_acs = np.std(all_acs, axis=0)
+    max_states = np.max(all_states, axis=0)
+    min_states = np.min(all_states, axis=0)
+    mean_states = np.mean(all_states, axis=0)
+    std_states = np.std(all_states, axis=0)
+
+    info = {
+        "max_acs": max_acs.tolist(),
+        "min_acs": min_acs.tolist(),
+        "mean_acs": mean_acs.tolist(),
+        "std_acs": std_acs.tolist(),
+        "max_states": max_states.tolist(),
+        "min_states": min_states.tolist(),
+        "mean_states": mean_states.tolist(),
+        "std_states": std_states.tolist(),
+        "num_transitions": int(transitions),
+        "num_trajectories": num_trajs,
+    }
+    with open(output_json_file, "x") as f:
+        json.dump(info, f, indent=2)
+    print(f"Norm stats saved to {output_json_file}")
+
+
+def convert_hdf5_to_consolidated_hdf5(hdf5_dirs: list[str], output_hdf5_file: str):
+    """Convert all HDF5 trajectory files from given directories into a single consolidated HDF5."""
+    # Collect (dir, filename) pairs, then sort by (dir, filename) for deterministic order
+    all_files = []
+    for hdf5_dir in hdf5_dirs:
+        for f in os.listdir(hdf5_dir):
+            if f.endswith(".hdf5"):
+                all_files.append((hdf5_dir, f))
+    all_files.sort(key=lambda x: (x[0], x[1]))
+
+    with h5py.File(output_hdf5_file, "x") as hf_out:
+        for i, (hdf5_dir, hdf5_file) in enumerate(all_files):
+            file_path = os.path.join(hdf5_dir, hdf5_file)
+            with h5py.File(file_path, "r") as hf_in:
+                group = hf_out.create_group(f"trajectory_{i}")
+
+                if "data" in hf_in:
+                    data_group = hf_in["data"]
+                    if "config" in data_group.attrs:
+                        group.attrs["config"] = data_group.attrs["config"]
+
+                    # Truncation: max 400 steps; label=='4' → max 80 steps
+                    label = str(data_group.attrs.get("label", ""))
+                    # max_len = 80 if label == "4" else 400
+
+                    for key in data_group.keys():
+                        data = data_group[key][...]
+                        # Truncate trajectory dimension (first axis)
+                        # if data.ndim >= 1 and data.shape[0] > max_len:
+                            # data = data[:max_len]
+                        if key in ("camera_0", "camera_1"):
+                            data = resize_images_to_224(data, key)
+                        group.create_dataset(key, data=data)
+                else:
+                    for key in hf_in.keys():
+                        hf_in.copy(hf_in[key], group)
+
+            print(f"Copied {hdf5_file} → trajectory_{i}")
+
+
+def parse_args():
+    p = argparse.ArgumentParser(description="HDF5 to dataset with DINO (camera_0/1) + AnyTouch (camera_2)")
+    p.add_argument("--hdf5_dir", type=str, nargs="+", default=None,
+                  help="Directory (or directories) with trajectory HDF5 files (required unless --norm_stats_only)")
+    p.add_argument("--input_hdf5", type=str, default=None,
+                  help="Consolidated HDF5 path (required for --norm_stats_only)")
+    p.add_argument("--output_hdf5", type=str, default=None,
+                  help="Output consolidated HDF5 path (default: first hdf5_dir/consolidated.h5)")
+    p.add_argument("--output_json", type=str, default=None,
+                  help="Output JSON path for norm stats")
+    # p.add_argument("--anytouch_path", type=str, default=None,
+    #               help="Path to AnyTouch2 repo (default: $ANYTOUCH_PATH or ../AnyTouch2)")
+    p.add_argument("--checkpoint", type=str, default=None,
+                  help="Path to AnyTouch checkpoint (required unless --norm_stats_only)")
+    p.add_argument("--sensor", type=str, default="gelsight_mini",
+                  choices=list(SENSOR_NAME_TO_ID.keys()))
+    p.add_argument("--num_tactile_frames", type=int, default=4)
+    p.add_argument("--device", type=str, default="cuda:0")
+    p.add_argument("--dinov3_hub_dir", type=str)
+    p.add_argument("--dinov3_weights", type=str)
+    p.add_argument("--work_dir", type=str,
+                   help="New directory for working copies; source trajectories are preserved")
+    p.add_argument("--skip_consolidate", action="store_true",
+                  help="Skip consolidation step")
+    p.add_argument("--norm_stats_only", action="store_true",
+                  help="Only compute action/state norm stats; skip embedding encoding and consolidation")
+    return p.parse_args()
+
+
+def stage_trajectories(source_dirs, work_dir):
+    """Copy source trajectories to a new directory before adding embeddings."""
+    destination = Path(work_dir).expanduser().resolve()
+    sources = [Path(source).expanduser().resolve() for source in source_dirs]
+    if any(destination == source or source in destination.parents for source in sources):
+        raise ValueError("--work_dir must be outside the source trajectory directories")
+    inventories = [sorted(source.glob("*.hdf5")) for source in sources]
+    if not any(inventories):
+        raise ValueError("No trajectory .hdf5 files found in the source directories")
+    destination.mkdir(parents=True, exist_ok=False)
+    staged_dirs = []
+    for index, inventory in enumerate(inventories):
+        subdir = destination / f"source_{index}"
+        subdir.mkdir()
+        for path in inventory:
+            shutil.copy2(path, subdir / path.name)
+        staged_dirs.append(str(subdir))
+    return staged_dirs
+
+
+def main():
+    args = parse_args()
+
+    if args.norm_stats_only:
+        if not args.input_hdf5:
+            raise ValueError("--input_hdf5 required for --norm_stats_only (path to consolidated HDF5)")
+        output_json = args.output_json or os.path.join(
+            os.path.dirname(os.path.abspath(args.input_hdf5)), "norm_stats.json"
+        )
+        compute_norm_stats_only(args.input_hdf5, output_json)
+    else:
+        if not args.hdf5_dir:
+            raise ValueError("--hdf5_dir required (omit --norm_stats_only to run full pipeline)")
+        if not args.checkpoint:
+            raise ValueError("--checkpoint required unless --norm_stats_only")
+        if not args.work_dir:
+            raise ValueError("--work_dir must name a new directory for working copies")
+        if not args.dinov3_hub_dir or not args.dinov3_weights:
+            raise ValueError("--dinov3_hub_dir and --dinov3_weights are required")
+        for path in (args.checkpoint, args.dinov3_weights):
+            if not Path(path).is_file():
+                raise FileNotFoundError(path)
+        if not (Path(args.dinov3_hub_dir) / "hubconf.py").is_file():
+            raise FileNotFoundError("DINOv3 hubconf.py not found")
+        output_json = args.output_json or os.path.join(args.work_dir, "norm_stats.json")
+        output_path = args.output_hdf5 or os.path.join(args.work_dir, "consolidated.hdf5")
+        for path in (output_json, output_path):
+            if Path(path).exists():
+                raise FileExistsError(path)
+        staged_dirs = stage_trajectories(args.hdf5_dir, args.work_dir)
+
+        preprocess(
+            staged_dirs,
+            checkpoint_path=args.checkpoint,
+            sensor=args.sensor,
+            num_tactile_frames=args.num_tactile_frames,
+            device=args.device,
+            output_json_file=output_json,
+            dinov3_hub_dir=args.dinov3_hub_dir,
+            dinov3_weights=args.dinov3_weights,
+        )
+
+        if not args.skip_consolidate:
+            convert_hdf5_to_consolidated_hdf5(staged_dirs, output_path)
+
+
+if __name__ == '__main__':
+    main()

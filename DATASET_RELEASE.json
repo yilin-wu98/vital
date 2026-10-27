@@ -1,0 +1,46 @@
+{
+  "tasks": {
+    "pipette": {
+      "episodes": 320,
+      "frames": 153498,
+      "bytes": 361017143827,
+      "manifest_sha256": "2e1e7646afe7dbe62a3d09e04ce7f786423ec20d851235317fa3cd929bd09fc3",
+      "normalization_sha256": "3c44a985409bcaa7185819f89a6d56f1ba0af0a67e6047ab8df831050263bddc",
+      "terminal_observation_episodes": 56,
+      "controller_config_episodes": 100,
+      "source_identity_unchanged": true,
+      "largest_episode_bytes": 2223983449
+    },
+    "insertion": {
+      "episodes": 330,
+      "frames": 85395,
+      "bytes": 200751539108,
+      "manifest_sha256": "d4161ae633717368e4ddd174cfc158b6c77bddb7caa7dd4726dfa41a8ec5d621",
+      "normalization_sha256": "da103fd8a3f2171c2359a9dbcd952b39d690d9dfdf4a8d78e6480a985c5cc9b0",
+      "terminal_observation_episodes": 43,
+      "controller_config_episodes": 100,
+      "source_identity_unchanged": true,
+      "largest_episode_bytes": 1620555779
+    },
+    "wiping": {
+      "episodes": 330,
+      "frames": 63738,
+      "bytes": 154741081112,
+      "manifest_sha256": "632b226e858c3556a57b096b2e6a08553a25b6d2a72892a7d64b08ef2641b77a",
+      "normalization_sha256": "2745810a10f83f142dfa4b7a4e17405ad490750099bf5bb3dca461fe4a541b50",
+      "terminal_observation_episodes": 29,
+      "controller_config_episodes": 50,
+      "source_identity_unchanged": true,
+      "largest_episode_bytes": 974369765
+    }
+  },
+  "episodes": 980,
+  "frames": 302631,
+  "bytes": 716509764047,
+  "public_files_before_card": 992,
+  "export_verified": true,
+  "dataset_repo": "yilin-wu/ViTaL-datasets",
+  "license": "cc-by-4.0",
+  "upload_status": "in_progress",
+  "upload_verified": false
+}

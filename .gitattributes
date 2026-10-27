@@ -1,0 +1,2 @@
+# Compatibility patches retain literal context whitespace.
+liquid-tactile-control/patches/*.patch -text -whitespace

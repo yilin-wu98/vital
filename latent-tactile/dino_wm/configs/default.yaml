@@ -1,0 +1,43 @@
+# Decoder-stage defaults. World-model training and evaluation use liquid.yaml.
+# Paths are supplied by the caller; no machine-specific dataset is selected.
+dataset:
+  cameras: "camera_0,camera_1,camera_2"
+  segment_length: 4
+  num_test: 50
+  seed: 42
+  no_consolidated: false
+
+train_decoder:
+  mode: tactile
+  output_dir: outputs/decoder
+  batch_size: 64
+  segment_length: 1
+  num_test: 20
+  iters: 15000
+  lr: 0.0003
+  patch_side: 14
+  device: cuda:0
+  loss: rae
+  l1_weight: 1.0
+  edge_weight: 0.5
+  perceptual_weight: 0.1
+  resize_to_224: true
+  lpips_weight: 1.0
+  gan_weight: 0.75
+  disc_start_iter: 600
+  adv_start_iter: 800
+  num_workers: 0
+  amp: false
+  compile: true
+
+eval_decoder:
+  batch_size: 64
+  segment_length: 1
+  num_test: 100
+  patch_side: 14
+  device: cuda:0
+  num_samples: 8
+  num_episode_videos: 3
+  max_episode_len: 100
+  video_fps: 10
+  wandb_project: dino-decoder-tactile

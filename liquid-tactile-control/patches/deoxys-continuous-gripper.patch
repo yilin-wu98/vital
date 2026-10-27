@@ -1,0 +1,251 @@
+diff --git a/deoxys/deoxys/franka_interface/franka_interface.py b/deoxys/deoxys/franka_interface/franka_interface.py
+index 2975ba1..741a6eb 100644
+--- a/deoxys/deoxys/franka_interface/franka_interface.py
++++ b/deoxys/deoxys/franka_interface/franka_interface.py
+@@ -84,7 +84,8 @@ class FrankaInterface:
+         control_timeout: float = 1.0,
+         has_gripper: bool = True,
+         use_visualizer: bool = False,
+-        automatic_gripper_reset: bool=True,
++        automatic_gripper_reset: bool = True,
++        gripper_mode: str = 'binary',
+     ):
+         general_cfg = YamlConfig(general_cfg_file).as_easydict()
+         self._name = general_cfg.PC.NAME
+@@ -159,9 +160,18 @@ class FrankaInterface:
+ 
+         # automatically reset gripper by default
+         self.automatic_gripper_reset = automatic_gripper_reset
+-        
++        self.gripper_mode = gripper_mode  # 'binary', 'continuous', or 'continuous_smooth'
++
+         self._last_gripper_command_time = time.time()
+ 
++        # continuous_smooth mode state
++        self._gripper_ema_alpha = 0.2        # EMA smoothing factor (lower = smoother)
++        self._gripper_smoothed_action = None # EMA state
++        self._gripper_prev_target_width = None  # for rate limiting
++        self._gripper_max_delta = 0.005      # max width change per step (m)
++        self._gripper_deadband = 0.003       # min width change to send a command (m)
++        self._gripper_throttle_interval = 0.15  # min seconds between commands
++
+ 
+     def get_state(self, no_block: bool = False):
+         """_summary_
+@@ -489,46 +499,175 @@ class FrankaInterface:
+             self.visualizer.update(joint_positions=np.array(self._state_buffer[-1].q))
+ 
+     def gripper_control(self, action: float):
+-        """Control the gripper asynchronously with command throttling.
++        """Control the gripper
+ 
+         Args:
+-            action (float): The control command for Franka gripper. Negative for opening, non-negative for closing.
++            action (float): The control command for Franka gripper. In 'binary' mode: negative
++                opens, non-negative closes. In 'continuous' mode: [-1, 1] maps linearly to
++                target width [0.08, 0.0] m using a MoveMessage.
+         """
+-        current_time = time.time()
+-
+-        # Block if already fully open/closed
+-        current_width = self._gripper_state_buffer[-1].width
+-        if action < 0 and current_width > 0.075:
+-            logger.debug("Gripper already open enough; skipping open command.")
+-            return
+-        elif action > 0 and current_width < 0.005:
+-            logger.debug("Gripper already closed enough; skipping close command.")
+-            return
+ 
+         gripper_control_msg = franka_controller_pb2.FrankaGripperControlMessage()
+-        move_msg = franka_controller_pb2.FrankaGripperMoveMessage()
++        self.last_gripper_action = action
++
++        if self.gripper_mode == 'continuous':
++            # # Map action in [-1, 1] to target width in [0.08, 0.0] m
++            # target_width = np.clip(0.04 * (1.0 - action), 0.0, 0.08)
++            # move_msg = franka_controller_pb2.FrankaGripperMoveMessage()
++            # move_msg.width = target_width
++            # move_msg.speed = 0.04#0.1
++            # move_msg.force = 0.2
++            # move_msg.epsilon_inner = 0.04
++            # move_msg.epsilon_outer = 0.04
++            # gripper_control_msg.control_msg.Pack(move_msg)
++            # logger.debug(f"Gripper moving to width {target_width:.4f}")
++            # self._gripper_publisher.send(gripper_control_msg.SerializeToString())
++
++
++            # Block if already fully open/closed
++            current_width = self._gripper_state_buffer[-1].width
++            if action < 0 and current_width > 0.075:
++                logger.debug("Gripper already open enough; skipping open command.")
++                return
++            elif action > 0 and current_width < 0.005:
++                logger.debug("Gripper already closed enough; skipping close command.")
++                return
++
++
++            grasp_msg = franka_controller_pb2.FrankaGripperGraspMessage()
++            grasp_msg.width = np.clip(0.04 * (1.0 - action), 0.0, 0.08)#0.00
++            grasp_msg.speed = 0.04
++            grasp_msg.force = 0.2
++            grasp_msg.epsilon_inner = 0.01
++            grasp_msg.epsilon_outer = 0.01
++            gripper_control_msg.control_msg.Pack(grasp_msg)
++            # logger.debug("Gripper closing")
++            
++                
++            # gripper_control_msg.control_msg.Pack(grasp_msg)
++            # logger.debug("Gripper closing")
++
++            try:
++                self._gripper_publisher.send(gripper_control_msg.SerializeToString())
++                logger.debug("Gripper command sent successfully.")
++            except Exception as e:
++                logger.error(f"Failed to send gripper command: {e}")
++
++        elif self.gripper_mode == 'continuous_smooth':
++            # 1. EMA smoothing on the action signal
++            if self._gripper_smoothed_action is None:
++                self._gripper_smoothed_action = action
++            else:
++                self._gripper_smoothed_action = (
++                    self._gripper_ema_alpha * action
++                    + (1.0 - self._gripper_ema_alpha) * self._gripper_smoothed_action
++                )
++
++            desired_width = np.clip(0.04 * (1.0 - self._gripper_smoothed_action), 0.0, 0.08)
++
++            # 3. Rate limiting: cap width change per step
++            if self._gripper_prev_target_width is None:
++                self._gripper_prev_target_width = desired_width
++            target_width = np.clip(
++                desired_width,
++                self._gripper_prev_target_width - self._gripper_max_delta,
++                self._gripper_prev_target_width + self._gripper_max_delta,
++            )
++            self._gripper_prev_target_width = target_width
++
++            # 2. Deadband: skip if gripper is already near target
++            current_width = self._gripper_state_buffer[-1].width if self._gripper_state_buffer else target_width
++            if abs(target_width - current_width) < self._gripper_deadband:
++                logger.debug(f"Gripper deadband skip: target={target_width:.4f} current={current_width:.4f}")
++                return
++
++            # 4. Time throttling: avoid flooding the gripper controller
++            current_time = time.time()
++            if current_time - self._last_gripper_command_time < self._gripper_throttle_interval:
++                logger.debug("Gripper command throttled.")
++                return
++            self._last_gripper_command_time = current_time
++
++            grasp_msg = franka_controller_pb2.FrankaGripperGraspMessage()
++            grasp_msg.width = target_width
++            grasp_msg.speed = 0.04
++            grasp_msg.force = 0.2
++            grasp_msg.epsilon_inner = 0.01
++            grasp_msg.epsilon_outer = 0.01
++            gripper_control_msg.control_msg.Pack(grasp_msg)
++            logger.debug(f"Smooth gripper command: width={target_width:.4f}")
++
++            try:
++                self._gripper_publisher.send(gripper_control_msg.SerializeToString())
++            except Exception as e:
++                logger.error(f"Failed to send gripper command: {e}")
+ 
+-        grasp_msg = franka_controller_pb2.FrankaGripperGraspMessage()
+-        grasp_msg.width = 0.00
+-        grasp_msg.speed = 0.04
+-        grasp_msg.force = 1.
+-        grasp_msg.epsilon_inner = 0.005
+-        grasp_msg.epsilon_outer = 0.005
+-        gripper_control_msg.control_msg.Pack(grasp_msg)
+-        logger.debug("Gripper closing")
+-        if action < 0.0:
+-            grasp_msg.width = 0.08 * np.abs(action)
+         else:
+-            grasp_msg.width = -0.01
++            # action 0-> 1 : Grasp
++            # action 1-> 0 : Release
++            current_width = self._gripper_state_buffer[-1].width
++            if action < 0.0:
++                move_msg = franka_controller_pb2.FrankaGripperMoveMessage()
++                move_msg.width = 0.08 * np.abs(action)
++                move_msg.speed = 0.1
++                gripper_control_msg.control_msg.Pack(move_msg)
++                logger.debug("Gripper opening")
++                self._gripper_publisher.send(gripper_control_msg.SerializeToString())
++            elif action >= 0.0:
++                grasp_msg = franka_controller_pb2.FrankaGripperGraspMessage()
++                grasp_msg.width = -0.01
++                grasp_msg.speed = 0.5
++                grasp_msg.force = 30.0
++                grasp_msg.epsilon_inner = 0.08
++                grasp_msg.epsilon_outer = 0.08
++                gripper_control_msg.control_msg.Pack(grasp_msg)
++                logger.debug("Gripper closing")
++                self._gripper_publisher.send(gripper_control_msg.SerializeToString())
++
++
++    # def gripper_control(self, action: float):
++    #     """Control the gripper asynchronously with command throttling.
++
++    #     Args:
++    #         action (float): The control command for Franka gripper. Negative for opening, non-negative for closing.
++    #     """
++    #     current_time = time.time()
++
++    #     # Block if already fully open/closed
++    #     current_width = self._gripper_state_buffer[-1].width
++    #     print('current width', current_width)
++    #     print('action', action)
++    #     if action < 0 and current_width > 0.075:
++    #         logger.debug("Gripper already open enough; skipping open command.")
++    #         return
++    #     elif action > 0 and current_width < 0.005:
++    #         logger.debug("Gripper already closed enough; skipping close command.")
++    #         return
++
++    #     gripper_control_msg = franka_controller_pb2.FrankaGripperControlMessage()
++    #     move_msg = franka_controller_pb2.FrankaGripperMoveMessage()
++
++    #     grasp_msg = franka_controller_pb2.FrankaGripperGraspMessage()
++    #     grasp_msg.width = 0.00
++    #     grasp_msg.speed = 0.04
++    #     grasp_msg.force = 1.
++    #     grasp_msg.epsilon_inner = 0.005
++    #     grasp_msg.epsilon_outer = 0.005
++    #     gripper_control_msg.control_msg.Pack(grasp_msg)
++    #     logger.debug("Gripper closing")
++    #     if action < 0.0:
++    #         grasp_msg.width = 0.08 * np.abs(action)
++    #     else:
++    #         grasp_msg.width = -0.01
+             
+-        gripper_control_msg.control_msg.Pack(grasp_msg)
+-        logger.debug("Gripper closing")
++    #     gripper_control_msg.control_msg.Pack(grasp_msg)
++    #     logger.debug("Gripper closing")
+ 
+-        try:
+-            self._gripper_publisher.send(gripper_control_msg.SerializeToString())
+-            logger.debug("Gripper command sent successfully.")
+-        except Exception as e:
+-            logger.error(f"Failed to send gripper command: {e}")
++    #     try:
++    #         self._gripper_publisher.send(gripper_control_msg.SerializeToString())
++    #         logger.debug("Gripper command sent successfully.")
++    #     except Exception as e:
++    #         logger.error(f"Failed to send gripper command: {e}")
+ 
+ 
+ 
+@@ -669,6 +808,9 @@ class FrankaInterface:
+         self.last_gripper_command_counter = 0
+         self._history_actions = []
+ 
++        self._gripper_smoothed_action = None
++        self._gripper_prev_target_width = None
++
+     @property
+     def received_states(self):
+         return len(self._state_buffer) > 0

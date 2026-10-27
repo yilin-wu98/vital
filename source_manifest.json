@@ -1,0 +1,302 @@
+[
+  {
+    "source": "latent-tactile/dino_wm/config.py",
+    "destination": "latent-tactile/dino_wm/config.py",
+    "source_sha256": "fbfbd820547d69e9eabedf7e1f5454d8fa8936fc49d496ff912ca88634050c10",
+    "release_sha256": "1fed4e1465f13aae4a847933cacd3489a7edd45f23950065d99caeedeaa0ec85",
+    "modified_for_publication": true
+  },
+  {
+    "source": "latent-tactile/dino_wm/dino_models.py",
+    "destination": "latent-tactile/dino_wm/dino_models.py",
+    "source_sha256": "efc5ea9d16d4c976a96d86084b0340925bdadb516d47701d1cf2353867358d2d",
+    "release_sha256": "0e353c5424ef4e861e990021630411c383ab11311d422b25151a013467cbeab6",
+    "modified_for_publication": true
+  },
+  {
+    "source": "latent-tactile/dino_wm/dino_models_k_step.py",
+    "destination": "latent-tactile/dino_wm/dino_models_k_step.py",
+    "source_sha256": "35ffe2ae364059b8b74591ef529fa3c1e4cc54dd945396e61553f005a560df8a",
+    "release_sha256": "35ffe2ae364059b8b74591ef529fa3c1e4cc54dd945396e61553f005a560df8a",
+    "modified_for_publication": false
+  },
+  {
+    "source": "latent-tactile/dino_wm/dino_decoder.py",
+    "destination": "latent-tactile/dino_wm/dino_decoder.py",
+    "source_sha256": "80e6acc3941d2d5a6595c3d651016cfa27450e3f64367d54906191166e5c8e90",
+    "release_sha256": "307b75d009426f437d9837e5290eea8e93b8ee75ad228cad325afae25acd9961",
+    "modified_for_publication": true
+  },
+  {
+    "source": "latent-tactile/dino_wm/tactile_dataset.py",
+    "destination": "latent-tactile/dino_wm/tactile_dataset.py",
+    "source_sha256": "74ea33b3646fb89ef46876beb5deef5522fb27df9cef45b75c496c0fa8e2874a",
+    "release_sha256": "74ea33b3646fb89ef46876beb5deef5522fb27df9cef45b75c496c0fa8e2874a",
+    "modified_for_publication": false
+  },
+  {
+    "source": "latent-tactile/dino_wm/tactile_k_step_dataset.py",
+    "destination": "latent-tactile/dino_wm/tactile_k_step_dataset.py",
+    "source_sha256": "9fc137229fb4db80c004478bce36628e73b73922fdf3bd3325977e67d2390f76",
+    "release_sha256": "7b6c350e868a6627a0a892aab4a0c2c5b33054cf7d0d8b5f368b886c4be5962d",
+    "modified_for_publication": true
+  },
+  {
+    "source": "latent-tactile/dino_wm/hdf5_to_dataset_tactile.py",
+    "destination": "latent-tactile/dino_wm/hdf5_to_dataset_tactile.py",
+    "source_sha256": "eeca4eed659bada13e71f281889ffd930a5db8c7458f389759556a838a5a0ce8",
+    "release_sha256": "9268018e8cf0b56c9a18c0d3307daf9eb45588e6ccfbc4ad90306a935e49a65d",
+    "modified_for_publication": true
+  },
+  {
+    "source": "latent-tactile/dino_wm/train_dino_wm_tactile_k_step.py",
+    "destination": "latent-tactile/dino_wm/train_dino_wm_tactile_k_step.py",
+    "source_sha256": "5f352b3d7c49911dab0ab1b74103aea7e591ef626123e94744e05ccf01ee3e7b",
+    "release_sha256": "7c99fdabf21a4491188fd979a2639b81356e40ba221231b9c76d559204c7fcc4",
+    "modified_for_publication": true
+  },
+  {
+    "source": "latent-tactile/dino_wm/train_dino_decoder_tactile.py",
+    "destination": "latent-tactile/dino_wm/train_dino_decoder_tactile.py",
+    "source_sha256": "dbba5f952efb4de77ded3de91afc02bd7cfad613a06c9b459a11f36115c7482a",
+    "release_sha256": "4b68fc6016f59a99d84b9d9d76cd262f28ad791f0acbf63f597fb8703c6858a1",
+    "modified_for_publication": true
+  },
+  {
+    "source": "latent-tactile/dino_wm/eval_dino_wm_tactile_k_step.py",
+    "destination": "latent-tactile/dino_wm/eval_dino_wm_tactile_k_step.py",
+    "source_sha256": "d6f688c9d303e75b67b2657566973d5820c55342fa67e2c5b8d9f5ef128b30ba",
+    "release_sha256": "650a478991c859ecce0a09a501759b5b94b7aaab67a0299c392354f1d8841b5f",
+    "modified_for_publication": true
+  },
+  {
+    "source": "latent-tactile/dino_wm/eval_dino_decoder_tactile.py",
+    "destination": "latent-tactile/dino_wm/eval_dino_decoder_tactile.py",
+    "source_sha256": "ad6735866725990744f5aff85f8dcc03341bd54680e70a72676445a75f44b288",
+    "release_sha256": "0e5bf9788854ec9645ba11e1c00f2100d8e6f6915f7fbc17510796a7e30a9be3",
+    "modified_for_publication": true
+  },
+  {
+    "source": "latent-tactile/dino_wm/utils/save_video.py",
+    "destination": "latent-tactile/dino_wm/utils/save_video.py",
+    "source_sha256": "14255c86fab0e44e29498764b2ca64d66e2d692d2e6b8249acffdb455ff23fec",
+    "release_sha256": "14255c86fab0e44e29498764b2ca64d66e2d692d2e6b8249acffdb455ff23fec",
+    "modified_for_publication": false
+  },
+  {
+    "source": "latent-tactile/LICENSE",
+    "destination": "latent-tactile/LICENSE",
+    "source_sha256": "43fac7b885a91db5823f485ee00de21d745d87d487d7c2a2467460dd259e6d15",
+    "release_sha256": "43fac7b885a91db5823f485ee00de21d745d87d487d7c2a2467460dd259e6d15",
+    "modified_for_publication": false
+  },
+  {
+    "source": "AnyTouch2/model/tactile_mae.py",
+    "destination": "anytouch-reward/anytouch_reward/model.py",
+    "source_sha256": "621dfcf73b79fd6cbb9c5a8f675ef0deed814755f94a8342101595fa3c37dacd",
+    "release_sha256": "524ad9d46433009a3786bbfefd7838543033ff8842266c5cdc86f645cc59839f",
+    "modified_for_publication": true
+  },
+  {
+    "source": "AnyTouch2/scripts/infer_touch_text_similarity.py",
+    "destination": "anytouch-reward/anytouch_reward/video.py",
+    "source_sha256": "998286565677da53fef5af2a15c42f5a8915c2a10d39699aaad9866576755e61",
+    "release_sha256": "ce01882abaeefe8b8a65f2c5a4f0739def539a4d016dfc08829a48d869935bf7",
+    "modified_for_publication": true
+  },
+  {
+    "source": "AnyTouch2/CLIP-B-16/config.json",
+    "destination": "anytouch-reward/anytouch_reward/assets/clip/config.json",
+    "source_sha256": "2ff53c26dc1b7c88b126a689983ee06554ea64a31e43ed2c06edb946d1a2fd41",
+    "release_sha256": "2ff53c26dc1b7c88b126a689983ee06554ea64a31e43ed2c06edb946d1a2fd41",
+    "modified_for_publication": false
+  },
+  {
+    "source": "AnyTouch2/CLIP-B-16/tokenizer_config.json",
+    "destination": "anytouch-reward/anytouch_reward/assets/clip/tokenizer_config.json",
+    "source_sha256": "00439066fcba73de57644cf41e4e3b9f2dbb09d7f3fc2005898ba52399045882",
+    "release_sha256": "00439066fcba73de57644cf41e4e3b9f2dbb09d7f3fc2005898ba52399045882",
+    "modified_for_publication": false
+  },
+  {
+    "source": "AnyTouch2/CLIP-B-16/special_tokens_map.json",
+    "destination": "anytouch-reward/anytouch_reward/assets/clip/special_tokens_map.json",
+    "source_sha256": "c4864a9376a8401918425bed71fc14fc0e81f9b59ec45c1cf96cccb2df508eac",
+    "release_sha256": "c4864a9376a8401918425bed71fc14fc0e81f9b59ec45c1cf96cccb2df508eac",
+    "modified_for_publication": false
+  },
+  {
+    "source": "AnyTouch2/CLIP-B-16/vocab.json",
+    "destination": "anytouch-reward/anytouch_reward/assets/clip/vocab.json",
+    "source_sha256": "5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+    "release_sha256": "5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+    "modified_for_publication": false
+  },
+  {
+    "source": "AnyTouch2/CLIP-B-16/merges.txt",
+    "destination": "anytouch-reward/anytouch_reward/assets/clip/merges.txt",
+    "source_sha256": "f526393189112391ce6f9795d4695f704121ce452c3aad1f5335cc41337eba85",
+    "release_sha256": "f526393189112391ce6f9795d4695f704121ce452c3aad1f5335cc41337eba85",
+    "modified_for_publication": false
+  },
+  {
+    "source": "AnyTouch2/LICENSE",
+    "destination": "anytouch-reward/LICENSE",
+    "source_sha256": "cea248a4a59664ccf65955f382ba937519b010e4de72d2a388ccf56d2e0aa104",
+    "release_sha256": "cea248a4a59664ccf65955f382ba937519b010e4de72d2a388ccf56d2e0aa104",
+    "modified_for_publication": false
+  },
+  {
+    "source": "deoxys_control/deoxys/examples/run_dp_two_step_visual_tactile_guidance_liquid_log.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/drivers/two_step.py",
+    "source_sha256": "dc572712c373557885ccea9733d224e36c323a70b1f9b4474636604e15abaf3d",
+    "release_sha256": "ce0bee493a1b8b7fbdd1e19c1b91614590b130dfa469ded3120e9c39730d527b",
+    "modified_for_publication": true
+  },
+  {
+    "source": "deoxys_control/deoxys/examples/run_model_tactile_guidance_liquid_log.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/drivers/tactile_guidance.py",
+    "source_sha256": "e12e80788c83729b2e4068efef23f46b972924585fe5a0ecd6da9ec04bfbb3d8",
+    "release_sha256": "411b6690b230a311b96c28b312e99b26c83350fbd395b2de93f0c888d5767871",
+    "modified_for_publication": true
+  },
+  {
+    "source": "deoxys_control/deoxys/examples/run_dp_model_tactile_sampling_liquid_log.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/drivers/tactile_sampling.py",
+    "source_sha256": "1bdb5852d7e464d67f495784d2b0b48122c936faeb66a05f65ea60a1cc272f53",
+    "release_sha256": "6e9c6220a94bbb3791762886ee1606098012a76ac0058a88e0bd69da2f59dc3e",
+    "modified_for_publication": true
+  },
+  {
+    "source": "deoxys_control/deoxys/examples/run_dp_tactile_vision_combined_liquid_log.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/drivers/combined_sampling.py",
+    "source_sha256": "895fdad78f7474bcfa2b2f61f8063c269bc98290bd264c1e8e4463898a3b8be2",
+    "release_sha256": "7d4f290a51535994f8489007ea4eebb4d41177a4ef7f704b707c3da70898fd38",
+    "modified_for_publication": true
+  },
+  {
+    "source": "deoxys_control/deoxys/examples/run_dp_tactile_sampling_vision_robometer_log.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/drivers/vision_sampling.py",
+    "source_sha256": "8e69b3b7ccc6ccdc72b1268c4a3cd06c350704431314717f71a370f93fb03d1e",
+    "release_sha256": "416fef8928d8cdc68963b3ac9795cdb35b8c6b213b0f2c29a52174302d5e628a",
+    "modified_for_publication": true
+  },
+  {
+    "source": "deoxys_control/deoxys/examples/run_dp_model_tactile_liquid_log.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/drivers/baseline.py",
+    "source_sha256": "c7ce4ae15e9e57b968d1f7dfa89f69510f77ea635041e44f0f81be24f638c926",
+    "release_sha256": "1ac3bf79c5207afd9b70b4b00beb34a6ef505f637858bdc864e11c8b2be48aa0",
+    "modified_for_publication": true
+  },
+  {
+    "source": "deoxys_control/deoxys/examples/run_dp_model_tactile_sampling.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/sampling_context.py",
+    "source_sha256": "a8d697fd2570726b5750bfceec98e4419edcd49b297c352ba336261191bd2fec",
+    "extracted_functions": [
+      "_is_k_step_wm",
+      "_preprocess_tactile_frame",
+      "_rgb_uint8_chw01_match_hw",
+      "_strip_compile_prefix",
+      "_tactile_clip_norm_tensors",
+      "_tactile_emb_history_maxlen",
+      "_tactile_window_rgb_to_chw_stack",
+      "_wm_context_length",
+      "build_k_step_inp_and_st_from_logged",
+      "build_k_step_state_tensor",
+      "build_tactile_k_step_context",
+      "build_tactile_wm_context",
+      "eef_pose_to_state",
+      "ensure_patch_grid",
+      "get_tactile_embedding_from_image",
+      "k_step_hist_frame_indices",
+      "load_tactile_encoder"
+    ],
+    "release_sha256": "1f41fd327a994a093146fabf5c29637dde59270761887fee4d4400ea2aa1b434",
+    "modified_for_publication": true
+  },
+  {
+    "source": "deoxys_control/deoxys/deoxys/utils/policy_callback/real_policy.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/policy.py",
+    "source_sha256": "f0045d2dffbc1cd8c8822a0834168a15dc00be3eef1f34758ea18441c1067bd1",
+    "release_sha256": "c1900330e844fb257bf339f0852854c5bc6ad9eccc8898d38b50a6fe565e2da3",
+    "modified_for_publication": true
+  },
+  {
+    "source": "deoxys_control/deoxys/examples/plot_two_step_guidance_logs.py",
+    "destination": "liquid-tactile-control/analysis/plot_two_step_guidance_logs.py",
+    "source_sha256": "c2722d898b1dc699f7176dcf9e8f40e876b22f607f8d31fae3ddc973ed675adc",
+    "release_sha256": "c2722d898b1dc699f7176dcf9e8f40e876b22f607f8d31fae3ddc973ed675adc",
+    "modified_for_publication": false
+  },
+  {
+    "source": "deoxys_control/deoxys/examples/plot_combined_sampling_logs.py",
+    "destination": "liquid-tactile-control/analysis/plot_combined_sampling_logs.py",
+    "source_sha256": "d4f6d1a346d85189793be8b48c19d80746d0784df3fa08c487734a80b2d7a7ea",
+    "release_sha256": "d4f6d1a346d85189793be8b48c19d80746d0784df3fa08c487734a80b2d7a7ea",
+    "modified_for_publication": false
+  },
+  {
+    "source": "deoxys_control/deoxys/examples/plot_vision_sampling_logs.py",
+    "destination": "liquid-tactile-control/analysis/plot_vision_sampling_logs.py",
+    "source_sha256": "ed5e9cc467f1249b186b6cfda0ae6510f0404476fd45d116eea758f353416dd2",
+    "release_sha256": "ed5e9cc467f1249b186b6cfda0ae6510f0404476fd45d116eea758f353416dd2",
+    "modified_for_publication": false
+  },
+  {
+    "source": "deoxys_control/LICENSE",
+    "destination": "liquid-tactile-control/LICENSE",
+    "source_sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "release_sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "modified_for_publication": false
+  },
+  {
+    "source": "diffusion4robotics/data4robotics/agent.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/policy_backend/agent.py",
+    "source_sha256": "6376b3c21a0944103e25a9540272f5d5323611795fecbc8f3a18a5f9ddc437fc",
+    "release_sha256": "ce2f48fcaf7e8321cd7f075ee085b0d2cbbfadd725d0648cb679dd7e28a48775",
+    "modified_for_publication": true
+  },
+  {
+    "source": "diffusion4robotics/data4robotics/models/diffusion_unet.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/policy_backend/models/diffusion_unet.py",
+    "source_sha256": "4fa684606b77fc2b575040cde3ad50b3d6ea6372d161e6df1a659bbb68227c10",
+    "release_sha256": "5b40f49e8375f8920218033ff3b914db565d3158fce63672cd6ad1ba62ef3641",
+    "modified_for_publication": true
+  },
+  {
+    "source": "diffusion4robotics/data4robotics/models/resnet.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/policy_backend/models/resnet.py",
+    "source_sha256": "01e85c342a51c4d364ede58350641cc58483cad5fc9729e288a75cb2a00b8fa0",
+    "release_sha256": "10875bb92fb907b48d3fdadef0755368f9a10d93c1b8c5cd864bfe0ff8549762",
+    "modified_for_publication": true
+  },
+  {
+    "source": "diffusion4robotics/data4robotics/models/base.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/policy_backend/models/base.py",
+    "source_sha256": "2a6e5858dfa10193d40091d18b1da82394d490b81b7d6f5ad0799b73b551b22b",
+    "release_sha256": "2a6e5858dfa10193d40091d18b1da82394d490b81b7d6f5ad0799b73b551b22b",
+    "modified_for_publication": false
+  },
+  {
+    "source": "diffusion4robotics/data4robotics/transforms.py",
+    "destination": "liquid-tactile-control/liquid_tactile_control/policy_backend/transforms.py",
+    "source_sha256": "c4b16502a1018d53c4548d8baaa9e42a8b1160f452bbaefad2a750e38521984c",
+    "release_sha256": "4558f55d3ba9213826f07610d68daa14e72757ff0fe89e626dc335d909373c81",
+    "modified_for_publication": true
+  },
+  {
+    "source": "diffusion4robotics/LICENSE.md",
+    "destination": "liquid-tactile-control/liquid_tactile_control/policy_backend/LICENSE.md",
+    "source_sha256": "8d6f93302003e1f1c0668df44909702c8832cc62c91970a59c2f0984a46b74b3",
+    "release_sha256": "8d6f93302003e1f1c0668df44909702c8832cc62c91970a59c2f0984a46b74b3",
+    "modified_for_publication": false
+  },
+  {
+    "source": "deoxys_control/deoxys/deoxys/franka_interface/franka_interface.py",
+    "destination": "liquid-tactile-control/patches/deoxys-continuous-gripper.patch",
+    "source_sha256": "4b0aae0dd5d065d74ea364c67363c742a9b49dc457bb27314310044cca807a5e",
+    "representation": "git diff against base commit 5ca447a5df7d1cefadf43fbfba7fd5f147383d7c",
+    "release_sha256": "649b27c5e17ef5f975bdb7885315b46e4f085585e840b9e115650b8c07cc882f",
+    "modified_for_publication": true
+  }
+]

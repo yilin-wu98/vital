@@ -1,0 +1,18 @@
+{
+  "paths": {
+    "interface_cfg": "/path/to/robot/interface.yml",
+    "policy_dir": "/path/to/policy_run",
+    "wm_checkpoint": "/path/to/wm_kstep_concat_h1_p1_fs8_iter67000.pth",
+    "norm_stats_json": "/path/to/tactile_liquid_wm_liquid.json",
+    "anytouch_checkpoint": "/path/to/checkpoint-4frames.pth",
+    "dinov3_hub_dir": "/path/to/dinov3",
+    "dinov3_weights": "/path/to/dinov3_vitb16_pretrain_lvd1689m-73cec8be.pth",
+    "vision_decoder": "/path/to/decoder_camera_0_camera_1_last.pth"
+  },
+  "policy_iteration": 23999,
+  "controller_type": "OSC_POSE",
+  "controller_cfg": "osc-position-controller.yml",
+  "output_dir": "../outputs",
+  "eval_server_url": "http://localhost:8000",
+  "method_options": {}
+}

@@ -1,0 +1,176 @@
+{
+  "snapshot_date": "2026-10-27",
+  "source_type": "working trees including uncommitted and untracked files",
+  "selected_sources": [
+    {
+      "source": "latent-tactile/dino_wm/config.py",
+      "destination": "dino_wm/config.py",
+      "source_sha256": "fbfbd820547d69e9eabedf7e1f5454d8fa8936fc49d496ff912ca88634050c10",
+      "release_sha256": "1fed4e1465f13aae4a847933cacd3489a7edd45f23950065d99caeedeaa0ec85",
+      "modified_for_publication": true,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    },
+    {
+      "source": "latent-tactile/dino_wm/dino_models.py",
+      "destination": "dino_wm/dino_models.py",
+      "source_sha256": "efc5ea9d16d4c976a96d86084b0340925bdadb516d47701d1cf2353867358d2d",
+      "release_sha256": "0e353c5424ef4e861e990021630411c383ab11311d422b25151a013467cbeab6",
+      "modified_for_publication": true,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    },
+    {
+      "source": "latent-tactile/dino_wm/dino_models_k_step.py",
+      "destination": "dino_wm/dino_models_k_step.py",
+      "source_sha256": "35ffe2ae364059b8b74591ef529fa3c1e4cc54dd945396e61553f005a560df8a",
+      "release_sha256": "35ffe2ae364059b8b74591ef529fa3c1e4cc54dd945396e61553f005a560df8a",
+      "modified_for_publication": false,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    },
+    {
+      "source": "latent-tactile/dino_wm/dino_decoder.py",
+      "destination": "dino_wm/dino_decoder.py",
+      "source_sha256": "80e6acc3941d2d5a6595c3d651016cfa27450e3f64367d54906191166e5c8e90",
+      "release_sha256": "307b75d009426f437d9837e5290eea8e93b8ee75ad228cad325afae25acd9961",
+      "modified_for_publication": true,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    },
+    {
+      "source": "latent-tactile/dino_wm/tactile_dataset.py",
+      "destination": "dino_wm/tactile_dataset.py",
+      "source_sha256": "74ea33b3646fb89ef46876beb5deef5522fb27df9cef45b75c496c0fa8e2874a",
+      "release_sha256": "74ea33b3646fb89ef46876beb5deef5522fb27df9cef45b75c496c0fa8e2874a",
+      "modified_for_publication": false,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    },
+    {
+      "source": "latent-tactile/dino_wm/tactile_k_step_dataset.py",
+      "destination": "dino_wm/tactile_k_step_dataset.py",
+      "source_sha256": "9fc137229fb4db80c004478bce36628e73b73922fdf3bd3325977e67d2390f76",
+      "release_sha256": "7b6c350e868a6627a0a892aab4a0c2c5b33054cf7d0d8b5f368b886c4be5962d",
+      "modified_for_publication": true,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    },
+    {
+      "source": "latent-tactile/dino_wm/hdf5_to_dataset_tactile.py",
+      "destination": "dino_wm/hdf5_to_dataset_tactile.py",
+      "source_sha256": "eeca4eed659bada13e71f281889ffd930a5db8c7458f389759556a838a5a0ce8",
+      "release_sha256": "9268018e8cf0b56c9a18c0d3307daf9eb45588e6ccfbc4ad90306a935e49a65d",
+      "modified_for_publication": true,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    },
+    {
+      "source": "latent-tactile/dino_wm/train_dino_wm_tactile_k_step.py",
+      "destination": "dino_wm/train_dino_wm_tactile_k_step.py",
+      "source_sha256": "5f352b3d7c49911dab0ab1b74103aea7e591ef626123e94744e05ccf01ee3e7b",
+      "release_sha256": "7c99fdabf21a4491188fd979a2639b81356e40ba221231b9c76d559204c7fcc4",
+      "modified_for_publication": true,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    },
+    {
+      "source": "latent-tactile/dino_wm/train_dino_decoder_tactile.py",
+      "destination": "dino_wm/train_dino_decoder_tactile.py",
+      "source_sha256": "dbba5f952efb4de77ded3de91afc02bd7cfad613a06c9b459a11f36115c7482a",
+      "release_sha256": "4b68fc6016f59a99d84b9d9d76cd262f28ad791f0acbf63f597fb8703c6858a1",
+      "modified_for_publication": true,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    },
+    {
+      "source": "latent-tactile/dino_wm/eval_dino_wm_tactile_k_step.py",
+      "destination": "dino_wm/eval_dino_wm_tactile_k_step.py",
+      "source_sha256": "d6f688c9d303e75b67b2657566973d5820c55342fa67e2c5b8d9f5ef128b30ba",
+      "release_sha256": "650a478991c859ecce0a09a501759b5b94b7aaab67a0299c392354f1d8841b5f",
+      "modified_for_publication": true,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    },
+    {
+      "source": "latent-tactile/dino_wm/eval_dino_decoder_tactile.py",
+      "destination": "dino_wm/eval_dino_decoder_tactile.py",
+      "source_sha256": "ad6735866725990744f5aff85f8dcc03341bd54680e70a72676445a75f44b288",
+      "release_sha256": "0e5bf9788854ec9645ba11e1c00f2100d8e6f6915f7fbc17510796a7e30a9be3",
+      "modified_for_publication": true,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    },
+    {
+      "source": "latent-tactile/dino_wm/utils/save_video.py",
+      "destination": "dino_wm/utils/save_video.py",
+      "source_sha256": "14255c86fab0e44e29498764b2ca64d66e2d692d2e6b8249acffdb455ff23fec",
+      "release_sha256": "14255c86fab0e44e29498764b2ca64d66e2d692d2e6b8249acffdb455ff23fec",
+      "modified_for_publication": false,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    },
+    {
+      "source": "latent-tactile/LICENSE",
+      "destination": "LICENSE",
+      "source_sha256": "43fac7b885a91db5823f485ee00de21d745d87d487d7c2a2467460dd259e6d15",
+      "release_sha256": "43fac7b885a91db5823f485ee00de21d745d87d487d7c2a2467460dd259e6d15",
+      "modified_for_publication": false,
+      "source_base_commit": "c6cd627ccf5114c364e36f4cdb76398f380e3d92"
+    }
+  ],
+  "added_files": [
+    {
+      "path": ".gitignore",
+      "sha256": "4c8de7db361fee3bd3f6b5aa4a7cd20eb42ef3a51e25361dfa05e8715cdc651c"
+    },
+    {
+      "path": "MANIFEST.in",
+      "sha256": "74ceaeffb5c382ca064048cca0f2a99256a98767fea72c817091b4db84c151ba"
+    },
+    {
+      "path": "README.md",
+      "sha256": "1f6659c247069e348de8b1bdfc73ff117f74a73d27b23e6e98ee8bdb06e9a948"
+    },
+    {
+      "path": "dino_wm/__init__.py",
+      "sha256": "f1a9b06196598b989c3c2687b991ceff61448e4401763451c5261d2abc41172f"
+    },
+    {
+      "path": "dino_wm/configs/default.yaml",
+      "sha256": "8b86fc1085fe4adb3d6bdfa288a185c00d55bb655ef568e1ce80673d76e0f462"
+    },
+    {
+      "path": "dino_wm/configs/liquid.yaml",
+      "sha256": "8b359e98e2d2b8ab2b9f8f11924c46659c4674cae621df18bcdc34730e3cf604"
+    },
+    {
+      "path": "dino_wm/export_dataset.py",
+      "sha256": "281a7acf3b436818115768ce45b7926fa4ccf6be31731404263e4ed788616ba8"
+    },
+    {
+      "path": "dino_wm/utils/__init__.py",
+      "sha256": "9449d1ec618f10f82818111376d46040314a294359ce727dffa42f88cf553ca1"
+    },
+    {
+      "path": "docs/recovered_runs.json",
+      "sha256": "dc34b5e23c11da7785df4c1913a00bc1cce66913568c1fb2e9026a43993002b8"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "7b0e3e6f2c2f9091598b1fab579f61d4ac3992f79a0b4e23ece3815b119e81c1"
+    },
+    {
+      "path": "scripts/evaluate_liquid.sh",
+      "sha256": "b83dd3583b3f5d5de5e09bf6ee9e0125b019da8a06847f940b127f7416130de2"
+    },
+    {
+      "path": "scripts/train_liquid.sh",
+      "sha256": "6a99925abfcc40235c4baa24968fe0676faf4fe790bbc5cccf533da52e26a574"
+    },
+    {
+      "path": "tests/test_active_recipe.py",
+      "sha256": "b96cc5358bca381ba60bd3c683be53ae3c0f8acd1e40f1df73cb6dd5dfe2de6d"
+    },
+    {
+      "path": "tests/test_dataset_export.py",
+      "sha256": "54ca48f104c80f414cb31a8dd5788f493b05a55ae6811e15fb39947b3955a9b3"
+    },
+    {
+      "path": "tests/test_episode_evaluation.py",
+      "sha256": "a93b9cfb2b1a8fdf2adc642f612e5d744243f17355a43ff7a41044675ba99d8e"
+    },
+    {
+      "path": "tests/test_world_model.py",
+      "sha256": "7d1ccec1c135347a2c27d5e6240da61f3a34940cccc23e0f71f99031f61488a2"
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "snapshot_date": "2026-10-27",
+  "source_type": "working trees including uncommitted and untracked files",
+  "selected_sources": [
+    {
+      "source": "AnyTouch2/model/tactile_mae.py",
+      "destination": "anytouch_reward/model.py",
+      "source_sha256": "621dfcf73b79fd6cbb9c5a8f675ef0deed814755f94a8342101595fa3c37dacd",
+      "release_sha256": "524ad9d46433009a3786bbfefd7838543033ff8842266c5cdc86f645cc59839f",
+      "modified_for_publication": true,
+      "source_base_commit": "3ffff32bce508b376f1d875a3f6829bff2f9c9c8"
+    },
+    {
+      "source": "AnyTouch2/scripts/infer_touch_text_similarity.py",
+      "destination": "anytouch_reward/video.py",
+      "source_sha256": "998286565677da53fef5af2a15c42f5a8915c2a10d39699aaad9866576755e61",
+      "release_sha256": "ce01882abaeefe8b8a65f2c5a4f0739def539a4d016dfc08829a48d869935bf7",
+      "modified_for_publication": true,
+      "source_base_commit": "3ffff32bce508b376f1d875a3f6829bff2f9c9c8"
+    },
+    {
+      "source": "AnyTouch2/CLIP-B-16/config.json",
+      "destination": "anytouch_reward/assets/clip/config.json",
+      "source_sha256": "2ff53c26dc1b7c88b126a689983ee06554ea64a31e43ed2c06edb946d1a2fd41",
+      "release_sha256": "2ff53c26dc1b7c88b126a689983ee06554ea64a31e43ed2c06edb946d1a2fd41",
+      "modified_for_publication": false,
+      "source_base_commit": "3ffff32bce508b376f1d875a3f6829bff2f9c9c8"
+    },
+    {
+      "source": "AnyTouch2/CLIP-B-16/tokenizer_config.json",
+      "destination": "anytouch_reward/assets/clip/tokenizer_config.json",
+      "source_sha256": "00439066fcba73de57644cf41e4e3b9f2dbb09d7f3fc2005898ba52399045882",
+      "release_sha256": "00439066fcba73de57644cf41e4e3b9f2dbb09d7f3fc2005898ba52399045882",
+      "modified_for_publication": false,
+      "source_base_commit": "3ffff32bce508b376f1d875a3f6829bff2f9c9c8"
+    },
+    {
+      "source": "AnyTouch2/CLIP-B-16/special_tokens_map.json",
+      "destination": "anytouch_reward/assets/clip/special_tokens_map.json",
+      "source_sha256": "c4864a9376a8401918425bed71fc14fc0e81f9b59ec45c1cf96cccb2df508eac",
+      "release_sha256": "c4864a9376a8401918425bed71fc14fc0e81f9b59ec45c1cf96cccb2df508eac",
+      "modified_for_publication": false,
+      "source_base_commit": "3ffff32bce508b376f1d875a3f6829bff2f9c9c8"
+    },
+    {
+      "source": "AnyTouch2/CLIP-B-16/vocab.json",
+      "destination": "anytouch_reward/assets/clip/vocab.json",
+      "source_sha256": "5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+      "release_sha256": "5047b556ce86ccaf6aa22b3ffccfc52d391ea4accdab9c2f2407da5b742d4363",
+      "modified_for_publication": false,
+      "source_base_commit": "3ffff32bce508b376f1d875a3f6829bff2f9c9c8"
+    },
+    {
+      "source": "AnyTouch2/CLIP-B-16/merges.txt",
+      "destination": "anytouch_reward/assets/clip/merges.txt",
+      "source_sha256": "f526393189112391ce6f9795d4695f704121ce452c3aad1f5335cc41337eba85",
+      "release_sha256": "f526393189112391ce6f9795d4695f704121ce452c3aad1f5335cc41337eba85",
+      "modified_for_publication": false,
+      "source_base_commit": "3ffff32bce508b376f1d875a3f6829bff2f9c9c8"
+    },
+    {
+      "source": "AnyTouch2/LICENSE",
+      "destination": "LICENSE",
+      "source_sha256": "cea248a4a59664ccf65955f382ba937519b010e4de72d2a388ccf56d2e0aa104",
+      "release_sha256": "cea248a4a59664ccf65955f382ba937519b010e4de72d2a388ccf56d2e0aa104",
+      "modified_for_publication": false,
+      "source_base_commit": "3ffff32bce508b376f1d875a3f6829bff2f9c9c8"
+    }
+  ],
+  "added_files": [
+    {
+      "path": ".gitignore",
+      "sha256": "4c8de7db361fee3bd3f6b5aa4a7cd20eb42ef3a51e25361dfa05e8715cdc651c"
+    },
+    {
+      "path": "MANIFEST.in",
+      "sha256": "2f06a5626c4a619340b12fdb6712a13d34023d99c400c9f7ee30c9e3f55a84a1"
+    },
+    {
+      "path": "README.md",
+      "sha256": "9fb752ac32ee9ab04dbe018e13051bd8e1dcd1ff0b88df282469dfdbfa821f01"
+    },
+    {
+      "path": "THIRD_PARTY_NOTICES.md",
+      "sha256": "75af469faff06f5d183618a903fdc2dc9dfb0ad876a7635ad58c7011cd68f071"
+    },
+    {
+      "path": "anytouch_reward/__init__.py",
+      "sha256": "648b197c6edf3228bb5f7a3e949fba1aafdce040ad83e22d8625e98c4eec6e13"
+    },
+    {
+      "path": "anytouch_reward/assets/clip/LICENSE.txt",
+      "sha256": "893951b3bf94db8df1b13e05da5cdeb499400960e4d44a3962a8b33ed0b4f28e"
+    },
+    {
+      "path": "anytouch_reward/loading.py",
+      "sha256": "deef028065468a869c6e30c2c823b95e15968419e276a18d166ad9e46cce9334"
+    },
+    {
+      "path": "anytouch_reward/reward.py",
+      "sha256": "3986d836d458cfa7602e2b7266ed6083f56eef47e1d7eab22c04d144ac06b012"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "aaf02537154af94310f62af90ada147a9ac9d13f1121f99452a2d8e51597a32c"
+    },
+    {
+      "path": "scripts/score_liquid.sh",
+      "sha256": "03a254a71aaf8fa03f2669f41539e4a2b5c335b549710d00911e5d9c7113b145"
+    },
+    {
+      "path": "tests/test_reward.py",
+      "sha256": "4c815eec53b786ce2d6ba53749bc6e827d8f3af311ac9a6eeb3c2525f2cc2919"
+    }
+  ]
+}

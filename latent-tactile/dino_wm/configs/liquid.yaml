@@ -1,0 +1,57 @@
+# Active liquid world model: saved W&B run xrjdyidg (2026-05-03 UTC).
+# The robot launchers select wm_kstep_concat_h1_p1_fs8_iter67000.pth.
+# Keep the original 100000-iteration training budget: it sets the noise schedule.
+# Supply --hdf5_path and --norm_stats_json. Logging is opt-in via --wandb.
+dataset:
+  cameras: "camera_0,camera_1,camera_2"
+  num_test: 50
+  seed: 42
+train_wm:
+  batch_size: 16
+  eval_batch_size: 8
+  iters: 100000
+  eval_every: 1000
+  device: cuda:0
+  num_workers: 0
+  normalize_states: false
+  segment_sampling: uniform
+  eval_rollout_horizon: 16
+  num_eval_videos: 1
+  video_fps: 10
+  video_every_eval: 3
+  use_wandb: false
+train_wm_k_step:
+  output_dir: outputs/liquid_world_model
+  condition_cameras: "camera_0,camera_1,camera_2"
+  predict_cameras: "camera_0,camera_1,camera_2"
+  model_arch: concat
+  num_hist: 1
+  num_pred: 1
+  frameskip: 8
+  temporal_mode: lpb
+  loss_mode: multi_step
+  multi_step_rollout_min: 3
+  multi_step_rollout_max: 5
+  noised: true
+  action_noise_geom_p: 0.05
+  action_noise_timesteps: 100
+
+# Standalone evaluation settings, aligned to the model and split above.
+# Each prediction uses recorded history; predictions are not fed back.
+eval_wm_k_step:
+  output_dir: outputs/liquid_evaluation
+  condition_cameras: "camera_0,camera_1,camera_2"
+  predict_cameras: "camera_0,camera_1,camera_2"
+  model_arch: concat
+  num_hist: 1
+  num_pred: 1
+  frameskip: 8
+  temporal_mode: lpb
+  eval_hist_mode: lpb
+  normalize_states: false
+  device: cuda:0
+  num_episode_videos: 20
+  max_episode_len: 600
+  video_fps: 5
+  save_embeddings: true
+  wandb_project: dino-wm-tactile-k-step
